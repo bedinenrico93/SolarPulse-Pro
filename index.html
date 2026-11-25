@@ -3,9 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolarPulse Pro - Commercial Edition</title>
+    <title>SolarPulse Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-main: #090d16;
+            --bg-card: #131b2e;
+            --bg-inner: #090d16;
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #1e293b;
+            --bar-gradient: linear-gradient(to top, #38bdf8, #34d399);
+            --success: #10b981;
+            --money: #34d399;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: 'Inter', sans-serif;
+            padding: 15px;
+            transition: background 0.3s;
+        }
+        
+        #app-container {
+            width: 100%; max-width: 440px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.7);
+            border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px;
+            position: relative; overflow: hidden;
+        }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); padding-bottom: 12px;
+        }
+        .app-title { font-size: 1.05rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+        .app-subtitle { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; display: inline-block; }
+
+        .icon-btn { background: var(--border); border: none; color: #fff; width: 34px; height: 34px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background 0.2s; }
+        .icon-btn:hover { background: #334155; }
+
+        .card {
+            background: var(--bg-inner); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+        }
+        .card-title { font-size: 0.75rem; font-weight: 600; color: #cbd5e1; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+
+        .summary-box {
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(56, 189, 248, 0.1));
+            border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .summary-label { font-size: 0.7rem; color: var(--text-muted); }
+        .summary-value { font-size: 1.1rem; font-weight: 700; color: var(--money); }
+
+        .input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.78rem; }
+        .input-group:last-child { margin-bottom: 0; }
+        .input-group label { color: var(--text-muted); font-weight: 500; }
+        .input-group input, .input-group select {
+            width: 135px; padding: 6px 8px; background: var(--bg-card); border: 1px solid var(--border); color: #fff;
+            font-family: 'Inter', sans-serif; font-size: 0.78rem; text-align: right; border-radius: 8px; outline: none;
+        }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent); }
+
+        .modern-btn {
+            background: var(--accent); color: #090d16; font-weight: 600; font-size: 0.8rem; padding: 10px;
+            border: none; border-radius: 9px; cursor: pointer; width: 100%;
+            text-align: center; transition: filter 0.2s, transform 0.1s; margin-top: 8px;
+        }
+        .modern-btn:hover { filter: brightness(1.1); }
+        .modern-btn:active { transform: scale(0.98); }
+
+        .gps-btn { background: var(--success); color: #fff; margin-bottom: 8px; }
+        .gps-btn:hover { filter: brightness(1.1); }
+
+        #config-panel {
+            background: var(--bg-inner); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+            display: none; margin-bottom: 5px;
+        }
+        #config-panel.open { display: block; }
+
+        #forecast-list { display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; padding-right: 2px; }
+        #forecast-list::-webkit-scrollbar { width: 4px; }
+        #forecast-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .forecast-item {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;
+        }
+        .forecast-item:hover { background: #1a253f; border-color: var(--accent); }
+        
+        .day-info { display: flex; flex-direction: column; gap: 2px; }
+        .day-name { color: var(--text-main); font-weight: 600; font-size: 0.82rem; }
+        .day-weather { color: var(--text-muted); font-size: 0.7rem; }
+        .day-temps { color: var(--accent); font-size: 0.68rem; font-weight: 500; }
+        
+        .day-prod-box { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+        .day-prod { color: #34d399; font-weight: 700; font-size: 0.85rem; }
+        .day-money { color: var(--money); font-size: 0.68rem; font-weight: 600; }
+
+        #detail-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-card); z-index: 20; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+            transition: transform 0.3s ease; transform: translateY(100%);
+        }
+        #detail-modal.active { transform: translateY(0); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+        
+        .vertical-chart-wrapper {
+            background: var(--bg-inner); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+            display: flex; flex-direction: column; gap: 8px; flex-grow: 1;
+        }
+        .vertical-chart-area {
+            display: flex; align-items: flex-end; justify-content: space-between; height: 210px;
+            border-bottom: 2px solid var(--border); padding-bottom: 4px; gap: 2px;
+        }
+        .v-bar-col {
+            flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end;
+        }
+        .v-bar {
+            width: 100%; background: var(--bar-gradient); border-radius: 4px 4px 0 0; min-height: 2px;
+        }
+        .v-bar-label {
+            font-size: 0.5rem; color: var(--text-muted); margin-top: 6px; transform: rotate(-45deg); white-space: nowrap;
+        }
+        .loading { text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 20px; }
+    </style>
 </head>
 <body>
 
@@ -18,7 +152,6 @@
             <button class="icon-btn" onclick="toggleConfig()" title="Settings">⚙️</button>
         </div>
 
-        <!-- MENU CONFIGURAZIONE -->
         <div id="config-panel">
             <div class="card-title"><span id="lbl-cfg-title">Configurazione Pro</span></div>
             
@@ -59,7 +192,6 @@
             <button class="modern-btn" onclick="saveAndReload()" id="btn-save">Salva & Aggiorna</button>
         </div>
 
-        <!-- RIEPILOGO RISPARMIO SETTIMANALE -->
         <div class="summary-box">
             <div>
                 <div class="summary-label" id="lbl-saving-title">Risparmio Stimato (7 Giorni)</div>
@@ -70,12 +202,9 @@
 
         <div class="card" style="flex-grow: 1;">
             <div class="card-title"><span id="lbl-outlook">📅 Outlook 7 Giorni</span><span style="font-size:0.65rem; color:var(--text-muted);" id="lbl-tap">Tocca per dettagli</span></div>
-            <div id="forecast-list">
-                <!-- Caricamento -->
-            </div>
+            <div id="forecast-list"></div>
         </div>
 
-        <!-- MODALE GRAFICO VERTICALE -->
         <div id="detail-modal">
             <div class="modal-header">
                 <div>
@@ -94,7 +223,173 @@
         </div>
     </div>
 
-    <!-- Collegamento allo script JS -->
-    <script src="script.js"></script>
-</body>
-</html>
+    <script>
+        let apiData = null;
+        let lat = 45.62;
+        let lon = 12.24;
+
+        const dict = {
+            it: {
+                status: "Meteo Live Satellitare",
+                cfgTitle: "Configurazione Pro",
+                gpsBtn: "📍 GPS Posizione",
+                langLbl: "Lingua / Language:",
+                powerLbl: "Potenza (kW):",
+                orientLbl: "Orientamento:",
+                costLbl: "Costo Energia (€/kWh):",
+                themeLbl: "Tema UI:",
+                saveBtn: "Salva & Aggiorna",
+                savingTitle: "Risparmio Stimato (7 Giorni)",
+                savingSub: "Energia autoprodotta",
+                outlook: "📅 Outlook 7 Giorni",
+                tap: "Tocca per dettagli",
+                chartTitle: "Potenza Istantanea (Watt)",
+                closeBtn: "Chiudi Analisi",
+                loading: "Connessione ai satelliti meteo...",
+                weather: { sunny: "☀️ Soleggiato", cloudy: "⛅ Nuvoloso", rain: "🌧️ Pioggia", var: "🌤️ Variabile" }
+            },
+            en: {
+                status: "Live Satellite Weather",
+                cfgTitle: "Pro Configuration",
+                gpsBtn: "📍 GPS Position",
+                langLbl: "Language:",
+                powerLbl: "Power (kW):",
+                orientLbl: "Orientation:",
+                costLbl: "Energy Cost (€/kWh):",
+                themeLbl: "UI Theme:",
+                saveBtn: "Save & Refresh",
+                savingTitle: "Estimated Savings (7 Days)",
+                savingSub: "Self-produced energy",
+                outlook: "📅 7-Day Outlook",
+                tap: "Tap for details",
+                chartTitle: "Instant Power (Watts)",
+                closeBtn: "Close Analysis",
+                loading: "Connecting to weather satellites...",
+                weather: { sunny: "☀️ Sunny", cloudy: "⛅ Cloudy", rain: "🌧️ Rain", var: "🌤️ Variable" }
+            }
+        };
+
+        const themes = {
+            slate: { bgMain: '#090d16', bgCard: '#131b2e', bgInner: '#090d16', accent: '#38bdf8', border: '#1e293b', grad: 'linear-gradient(to top, #38bdf8, #34d399)' },
+            amber: { bgMain: '#140f0a', bgCard: '#211810', bgInner: '#140f0a', accent: '#fbbf24', border: '#332415', grad: 'linear-gradient(to top, #fbbf24, #f97316)' },
+            emerald: { bgMain: '#042f2e', bgCard: '#064e3b', bgInner: '#022c22', accent: '#34d399', border: '#065f46', grad: 'linear-gradient(to top, #34d399, #10b981)' }
+        };
+
+        window.onload = () => {
+            if(localStorage.getItem('pro_power')) {
+                document.getElementById('pv-power').value = localStorage.getItem('pro_power');
+                document.getElementById('pv-orient').value = localStorage.getItem('pro_orient');
+                document.getElementById('energy-cost').value = localStorage.getItem('pro_cost') || "0.25";
+                document.getElementById('setting-theme').value = localStorage.getItem('pro_theme') || "slate";
+                document.getElementById('setting-lang').value = localStorage.getItem('pro_lang') || "it";
+                lat = parseFloat(localStorage.getItem('pro_lat')) || 45.62;
+                lon = parseFloat(localStorage.getItem('pro_lon')) || 12.24;
+                document.getElementById('display-location').innerText = localStorage.getItem('pro_locname') || "Zero Branco";
+            }
+            applyTheme();
+            updateTexts();
+            fetchWeatherData();
+        };
+
+        function toggleConfig() {
+            document.getElementById('config-panel').classList.toggle('open');
+        }
+
+        function applyTheme() {
+            let tKey = document.getElementById('setting-theme').value;
+            let t = themes[tKey] || themes.slate;
+            let r = document.documentElement;
+            r.style.setProperty('--bg-main', t.bgMain);
+            r.style.setProperty('--bg-card', t.bgCard);
+            r.style.setProperty('--bg-inner', t.bgInner);
+            r.style.setProperty('--accent', t.accent);
+            r.style.setProperty('--border', t.border);
+            r.style.setProperty('--bar-gradient', t.grad);
+        }
+
+        function updateTexts() {
+            let lang = document.getElementById('setting-lang').value;
+            let d = dict[lang] || dict.it;
+            document.getElementById('status-text').innerText = d.status;
+            document.getElementById('lbl-cfg-title').innerText = d.cfgTitle;
+            document.getElementById('btn-gps').innerText = d.gpsBtn;
+            document.getElementById('lbl-lang').innerText = d.langLbl;
+            document.getElementById('lbl-power').innerText = d.powerLbl;
+            document.getElementById('lbl-orient').innerText = d.orientLbl;
+            document.getElementById('lbl-cost').innerText = d.costLbl;
+            document.getElementById('lbl-theme').innerText = d.themeLbl;
+            document.getElementById('btn-save').innerText = d.saveBtn;
+            document.getElementById('lbl-saving-title').innerText = d.savingTitle;
+            document.getElementById('lbl-saving-sub').innerText = d.savingSub;
+            document.getElementById('lbl-outlook').innerText = d.outlook;
+            document.getElementById('lbl-tap').innerText = d.tap;
+            document.getElementById('lbl-chart-title').innerText = d.chartTitle;
+            document.getElementById('btn-close').innerText = d.closeBtn;
+        }
+
+        function saveAndReload() {
+            localStorage.setItem('pro_power', document.getElementById('pv-power').value);
+            localStorage.setItem('pro_orient', document.getElementById('pv-orient').value);
+            localStorage.setItem('pro_cost', document.getElementById('energy-cost').value);
+            localStorage.setItem('pro_theme', document.getElementById('setting-theme').value);
+            localStorage.setItem('pro_lang', document.getElementById('setting-lang').value);
+            toggleConfig();
+            applyTheme();
+            updateTexts();
+            fetchWeatherData();
+        }
+
+        function requestGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    lat = pos.coords.latitude;
+                    lon = pos.coords.longitude;
+                    document.getElementById('display-location').innerText = "GPS Position";
+                    localStorage.setItem('pro_lat', lat);
+                    localStorage.setItem('pro_lon', lon);
+                    localStorage.setItem('pro_locname', "GPS Position");
+                    toggleConfig();
+                    fetchWeatherData();
+                }, () => alert("GPS error."));
+            }
+        }
+
+        async function fetchWeatherData() {
+            let lang = document.getElementById('setting-lang').value;
+            let d = dict[lang] || dict.it;
+            const list = document.getElementById('forecast-list');
+            list.innerHTML = `<div class="loading">${d.loading}</div>`;
+
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 4500);
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=shortwave_radiation_sum,weathercode,temperature_2m_max,temperature_2m_min&hourly=shortwave_radiation&timezone=Europe/Rome`;
+                
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeout);
+                if(!res.ok) throw new Error("Errore rete");
+
+                apiData = await res.json();
+                renderForecast();
+            } catch(err) {
+                apiData = generateProData();
+                renderForecast();
+            }
+        }
+
+        function renderForecast() {
+            const list = document.getElementById('forecast-list');
+            list.innerHTML = '';
+
+            let lang = document.getElementById('setting-lang').value;
+            let d = dict[lang] || dict.it;
+
+            const kw = parseFloat(document.getElementById('pv-power').value) || 4.1;
+            const orient = parseFloat(document.getElementById('pv-orient').value) || 0.8;
+            const costPerKwh = parseFloat(document.getElementById('energy-cost').value) || 0.25;
+
+            const days = apiData.daily.time;
+            const rad = apiData.daily.shortwave_radiation_sum;
+            const codes = apiData.daily.weathercode;
+            const tMax = apiData.daily.temperature_2m_max;
+            c
