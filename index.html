@@ -1,84 +1,100 @@
-<div id="app-container">
-    <div class="header">
-        <div>
-            <div class="app-title" id="display-location">Zero Branco</div>
-            <div class="app-subtitle"><span class="status-dot"></span> <span id="status-text">Meteo Live & Risparmio</span></div>
-        </div>
-        <button class="icon-btn" onclick="toggleConfig()" title="Settings">⚙️</button>
-    </div>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarPulse Pro - Commercial Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    <!-- MENU CONFIGURAZIONE -->
-    <div id="config-panel">
-        <div class="card-title"><span id="lbl-cfg-title">Configurazione Pro</span></div>
-        
-        <button class="modern-btn gps-btn" onclick="requestGPS()" id="btn-gps">📍 GPS Posizione</button>
-
-        <div class="input-group">
-            <label id="lbl-lang">Lingua / Language:</label>
-            <select id="setting-lang" onchange="saveAndReload()">
-                <option value="it">Italiano</option>
-                <option value="en">English</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label id="lbl-power">Potenza (kW):</label>
-            <input type="number" id="pv-power" value="4.1" step="0.1" min="0.5">
-        </div>
-        <div class="input-group">
-            <label id="lbl-orient">Orientamento:</label>
-            <select id="pv-orient">
-                <option value="1.0">Sud (100%)</option>
-                <option value="0.8" selected>Ovest (80%)</option>
-                <option value="0.75">Est (75%)</option>
-                <option value="0.5">Nord (50%)</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label id="lbl-cost">Costo Energia (€/kWh):</label>
-            <input type="number" id="energy-cost" value="0.25" step="0.01" min="0.05">
-        </div>
-        <div class="input-group">
-            <label id="lbl-theme">Tema UI:</label>
-            <select id="setting-theme" onchange="applyTheme()">
-                <option value="slate">Pro Dark (Sky)</option>
-                <option value="amber">Solar Amber</option>
-                <option value="emerald">Eco Emerald</option>
-            </select>
-        </div>
-        <button class="modern-btn" onclick="saveAndReload()" id="btn-save">Salva & Aggiorna</button>
-    </div>
-
-    <!-- RIEPILOGO RISPARMIO SETTIMANALE -->
-    <div class="summary-box">
-        <div>
-            <div class="summary-label" id="lbl-saving-title">Risparmio Stimato (7 Giorni)</div>
-            <div style="font-size: 0.68rem; color: var(--text-muted);" id="lbl-saving-sub">Energia autoprodotta</div>
-        </div>
-        <div class="summary-value" id="total-money-saving">0.00 €</div>
-    </div>
-
-    <div class="card" style="flex-grow: 1;">
-        <div class="card-title"><span id="lbl-outlook">📅 Outlook 7 Giorni</span><span style="font-size:0.65rem; color:var(--text-muted);" id="lbl-tap">Tocca per dettagli</span></div>
-        <div id="forecast-list">
-            <!-- Caricamento -->
-        </div>
-    </div>
-
-    <!-- MODALE GRAFICO VERTICALE -->
-    <div id="detail-modal">
-        <div class="modal-header">
+    <div id="app-container">
+        <div class="header">
             <div>
-                <div class="modal-title" id="modal-day-title">Analisi Oraria</div>
-                <div style="font-size: 0.7rem; color: var(--text-muted);" id="modal-day-weather">Soleggiato</div>
+                <div class="app-title" id="display-location">Zero Branco</div>
+                <div class="app-subtitle"><span class="status-dot"></span> <span id="status-text">Meteo Live & Risparmio</span></div>
             </div>
-            <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-        
-        <div class="vertical-chart-wrapper">
-            <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-bottom: 2px;" id="lbl-chart-title">Potenza Istantanea (Watt)</div>
-            <div class="vertical-chart-area" id="vertical-chart-area"></div>
+            <button class="icon-btn" onclick="toggleConfig()" title="Settings">⚙️</button>
         </div>
 
-        <button class="modern-btn" onclick="closeModal()" id="btn-close">Chiudi Analisi</button>
+        <!-- MENU CONFIGURAZIONE -->
+        <div id="config-panel">
+            <div class="card-title"><span id="lbl-cfg-title">Configurazione Pro</span></div>
+            
+            <button class="modern-btn gps-btn" onclick="requestGPS()" id="btn-gps">📍 GPS Posizione</button>
+
+            <div class="input-group">
+                <label id="lbl-lang">Lingua / Language:</label>
+                <select id="setting-lang" onchange="saveAndReload()">
+                    <option value="it">Italiano</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label id="lbl-power">Potenza (kW):</label>
+                <input type="number" id="pv-power" value="4.1" step="0.1" min="0.5">
+            </div>
+            <div class="input-group">
+                <label id="lbl-orient">Orientamento:</label>
+                <select id="pv-orient">
+                    <option value="1.0">Sud (100%)</option>
+                    <option value="0.8" selected>Ovest (80%)</option>
+                    <option value="0.75">Est (75%)</option>
+                    <option value="0.5">Nord (50%)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label id="lbl-cost">Costo Energia (€/kWh):</label>
+                <input type="number" id="energy-cost" value="0.25" step="0.01" min="0.05">
+            </div>
+            <div class="input-group">
+                <label id="lbl-theme">Tema UI:</label>
+                <select id="setting-theme" onchange="applyTheme()">
+                    <option value="slate">Pro Dark (Sky)</option>
+                    <option value="amber">Solar Amber</option>
+                    <option value="emerald">Eco Emerald</option>
+                </select>
+            </div>
+            <button class="modern-btn" onclick="saveAndReload()" id="btn-save">Salva & Aggiorna</button>
+        </div>
+
+        <!-- RIEPILOGO RISPARMIO SETTIMANALE -->
+        <div class="summary-box">
+            <div>
+                <div class="summary-label" id="lbl-saving-title">Risparmio Stimato (7 Giorni)</div>
+                <div style="font-size: 0.68rem; color: var(--text-muted);" id="lbl-saving-sub">Energia autoprodotta</div>
+            </div>
+            <div class="summary-value" id="total-money-saving">0.00 €</div>
+        </div>
+
+        <div class="card" style="flex-grow: 1;">
+            <div class="card-title"><span id="lbl-outlook">📅 Outlook 7 Giorni</span><span style="font-size:0.65rem; color:var(--text-muted);" id="lbl-tap">Tocca per dettagli</span></div>
+            <div id="forecast-list">
+                <!-- Caricamento -->
+            </div>
+        </div>
+
+        <!-- MODALE GRAFICO VERTICALE -->
+        <div id="detail-modal">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modal-day-title">Analisi Oraria</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);" id="modal-day-weather">Soleggiato</div>
+                </div>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            
+            <div class="vertical-chart-wrapper">
+                <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-bottom: 2px;" id="lbl-chart-title">Potenza Istantanea (Watt)</div>
+                <div class="vertical-chart-area" id="vertical-chart-area"></div>
+            </div>
+
+            <button class="modern-btn" onclick="closeModal()" id="btn-close">Chiudi Analisi</button>
+        </div>
     </div>
-</div>
+
+    <!-- Collegamento allo script JS -->
+    <script src="script.js"></script>
+</body>
+</html>
