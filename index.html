@@ -3,414 +3,579 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SolarForecast Pro - Commercial Edition</title>
-<link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>SolarPulse Pro - Previsioni PV & Gestione Fotovoltaico</title>
     <style>
         :root {
-            --bg-main: #090d16;
-            --bg-card: #131b2e;
-            --bg-inner: #090d16;
-            --accent: #38bdf8;
-            --text-main: #f8fafc;
+            --bg: #0b1120;
+            --card: #1e293b;
+            --card-dark: #0f172a;
+            --text: #f8fafc;
             --text-muted: #94a3b8;
-            --border: #1e293b;
-            --bar-gradient: linear-gradient(to top, #38bdf8, #34d399);
-            --success: #10b981;
+            --accent: #f59e0b;
+            --green: #10b981;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --pro-grad: linear-gradient(135deg, #f59e0b, #ea580c);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background-color: var(--bg-main); 
-            color: var(--text-main); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            font-family: 'Inter', sans-serif;
-            padding: 15px;
-            transition: background 0.3s;
-        }
-        
-        #app-container {
-            width: 100%; max-width: 440px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.7);
-            border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 16px;
-            position: relative; overflow: hidden;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border); padding-bottom: 12px;
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 14px;
+            max-width: 780px;
+            margin: 0 auto;
+            padding-bottom: 70px;
         }
-        .app-title { font-size: 1.05rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
-        .app-subtitle { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
-        .status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; display: inline-block; }
 
-        .icon-btn { background: var(--border); border: none; color: #fff; width: 34px; height: 34px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background 0.2s; }
-        .icon-btn:hover { background: #334155; }
+        /* Header & Banner Abbonamento */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px 0;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 18px;
+            gap: 10px;
+        }
 
+        .logo {
+            font-size: 1.35rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .badge-free { background: #334155; color: #cbd5e1; }
+        .badge-pro { background: var(--pro-grad); color: #fff; }
+
+        .btn-pro-header {
+            background: var(--pro-grad);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 22px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        }
+        .btn-pro-header.is-active {
+            background: var(--green);
+            box-shadow: none;
+        }
+
+        /* Cards */
         .card {
-            background: var(--bg-inner); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
-        }
-        .card-title { font-size: 0.75rem; font-weight: 600; color: #cbd5e1; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-
-        .input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; }
-        .input-group:last-child { margin-bottom: 0; }
-        .input-group label { color: var(--text-muted); font-weight: 500; }
-        .input-group input, .input-group select {
-            width: 140px; padding: 7px 10px; background: var(--bg-card); border: 1px solid var(--border); color: #fff;
-            font-family: 'Inter', sans-serif; font-size: 0.8rem; text-align: right; border-radius: 8px; outline: none;
-        }
-        .input-group input:focus, .input-group select:focus { border-color: var(--accent); }
-
-        .modern-btn {
-            background: var(--accent); color: #090d16; font-weight: 600; font-size: 0.8rem; padding: 10px;
-            border: none; border-radius: 9px; cursor: pointer; width: 100%;
-            text-align: center; transition: filter 0.2s, transform 0.1s; margin-top: 10px;
-        }
-        .modern-btn:hover { filter: brightness(1.1); }
-        .modern-btn:active { transform: scale(0.98); }
-
-        .gps-btn { background: var(--success); color: #fff; margin-bottom: 10px; }
-        .gps-btn:hover { filter: brightness(1.1); }
-
-        #config-panel {
-            background: var(--bg-inner); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
-            display: none; margin-bottom: 5px;
-        }
-        #config-panel.open { display: block; }
-
-        #forecast-list { display: flex; flex-direction: column; gap: 8px; max-height: 310px; overflow-y: auto; padding-right: 2px; }
-        #forecast-list::-webkit-scrollbar { width: 4px; }
-        #forecast-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-        .forecast-item {
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;
-        }
-        .forecast-item:hover { background: #1a253f; border-color: var(--accent); }
-        
-        .day-info { display: flex; flex-direction: column; gap: 2px; }
-        .day-name { color: var(--text-main); font-weight: 600; font-size: 0.85rem; }
-        .day-weather { color: var(--text-muted); font-size: 0.75rem; }
-        .day-temps { color: var(--accent); font-size: 0.7rem; font-weight: 500; }
-        
-        .day-prod-box { text-align: right; display: flex; align-items: center; gap: 8px; }
-        .day-prod { color: #34d399; font-weight: 700; font-size: 0.9rem; }
-        .arrow { color: var(--text-muted); font-size: 0.8rem; }
-
-        /* Modale Grafico Verticale */
-        #detail-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-card); z-index: 20; padding: 20px; display: flex; flex-direction: column; gap: 12px;
-            transition: transform 0.3s ease; transform: translateY(100%);
-        }
-        #detail-modal.active { transform: translateY(0); }
-        
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .modal-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
-        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
-        
-        .vertical-chart-wrapper {
-            background: var(--bg-inner); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
-            display: flex; flex-direction: column; gap: 8px; flex-grow: 1;
-        }
-        .vertical-chart-area {
-            display: flex; align-items: flex-end; justify-content: space-between; height: 210px;
-            border-bottom: 2px solid var(--border); padding-bottom: 4px; gap: 2px;
-        }
-        .v-bar-col {
-            flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end;
-        }
-        .v-bar {
-            width: 100%; background: var(--bar-gradient); border-radius: 4px 4px 0 0; min-height: 2px;
-        }
-        .v-bar-label {
-            font-size: 0.5rem; color: var(--text-muted); margin-top: 6px; transform: rotate(-45deg); white-space: nowrap;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            position: relative;
+            overflow: hidden;
         }
 
-        .loading { text-align: center; font-size: 0.8rem; color: var(--text-muted); padding: 25px; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Configurazione Impianto */
+        .config-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: var(--card-dark);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .config-item label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+        .config-item input, .config-item select {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--accent);
+            font-weight: 700;
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        /* Box Numeri Live */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            background: var(--card-dark);
+            padding: 14px 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-val {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 4px 0;
+        }
+        .stat-val.green { color: var(--green); }
+        .stat-val.blue { color: var(--blue); }
+        .stat-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* Sliders Reattivi */
+        .sliders-box {
+            background: var(--card-dark);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .slider-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: #334155;
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid #fff;
+        }
+
+        /* Grafico a Barre Rendimento PV Orario */
+        .pv-chart-container {
+            background: var(--card-dark);
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+        .pv-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 110px;
+            gap: 4px;
+            padding-top: 15px;
+            border-bottom: 1px solid #334155;
+        }
+        .pv-bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .pv-bar-fill {
+            width: 100%;
+            max-width: 24px;
+            background: var(--pro-grad);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+            min-height: 4px;
+        }
+        .pv-bar-val {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .pv-bar-hour {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Paywall Overlay PRO */
+        .pro-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 17, 32, 0.84);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 20;
+        }
+        .pro-overlay h3 { font-size: 1.15rem; margin-bottom: 6px; }
+        .pro-overlay p { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 14px; max-width: 85%; }
+        .btn-unlock {
+            background: var(--pro-grad);
+            color: #fff;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Elettrodomestici PRO */
+        .app-list { display: flex; flex-direction: column; gap: 9px; }
+        .app-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-dark);
+            padding: 11px 13px;
+            border-radius: 10px;
+            border-left: 4px solid #64748b;
+        }
+        .app-item.ok { border-left-color: var(--green); }
+        .app-item.no { border-left-color: var(--red); }
+        .pill {
+            font-size: 0.72rem;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-weight: 800;
+        }
+        .pill.ok { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+        .pill.no { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+        /* Simulatore Batteria ROI */
+        .roi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .roi-result {
+            background: var(--card-dark);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--accent);
+            text-align: center;
+        }
+
+        /* Meteo & Ricerca */
+        .search-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .search-row input {
+            flex: 1;
+            background: var(--card-dark);
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .search-row button {
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 0 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .forecast-3d {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .f-day {
+            background: var(--card-dark);
+            padding: 10px 6px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        .f-day.tom { border-color: var(--accent); }
+        .advice-box {
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .btn-full {
+            width: 100%;
+            padding: 11px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 6px;
+            color: #fff;
+            background: var(--blue);
+        }
+        .btn-full.sec { background: #334155; }
+
+        /* Modale Pagamento */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 18px;
+        }
+        .modal-box {
+            background: var(--card);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-box h2 { color: var(--accent); margin-bottom: 8px; }
+        .modal-box ul {
+            text-align: left;
+            margin: 14px 0;
+            padding-left: 20px;
+            font-size: 0.88rem;
+            line-height: 1.65;
+        }
+        .modal-price {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 12px 0;
+        }
+        .modal-price span { font-size: 0.9rem; color: var(--text-muted); font-weight: normal; }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        <div class="header">
-            <div>
-                <div class="app-title" id="display-location">Zero Branco</div>
-                <div class="app-subtitle"><span class="status-dot"></span> <span id="status-text">Connessione Satellitare Pro</span></div>
-            </div>
-            <button class="icon-btn" onclick="toggleConfig()" title="Impostazioni">⚙️</button>
+    <header>
+        <div class="logo">
+            ☀️ SolarPulse <span class="badge badge-free" id="badgeStatus">FREE</span>
+        </div>
+        <button class="btn-pro-header" id="btnHeaderSub">
+            Abbonati PRO • 0,99€/mese
+        </button>
+    </header>
+
+    <!-- 1. SEZIONE GRATUITA: RENDIMENTO PV LIVE & CURVA PREVISIONE -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">⚡ Rendimento PV & Simulatore Live</div>
+            <span style="font-size: 0.78rem; color: var(--green);">● Versione Base Gratuita</span>
         </div>
 
-        <!-- MENU CONFIGURAZIONE -->
-        <div id="config-panel">
-            <div class="card-title">⚙️ Configurazione Pro</div>
-            
-            <button class="modern-btn gps-btn" onclick="requestGPS()">📍 Rileva Posizione GPS</button>
-
-            <div class="input-group">
-                <label>Potenza (kW):</label>
-                <input type="number" id="pv-power" value="4.1" step="0.1" min="0.5">
+        <!-- Parametri Impianto Modificabili da qualsiasi utente -->
+        <div class="config-bar">
+            <div class="config-item">
+                <label>Potenza (kW)</label>
+                <input type="number" id="inKw" value="4.1" step="0.1" min="0.5" max="50">
             </div>
-            <div class="input-group">
-                <label>Orientamento:</label>
-                <select id="pv-orient">
+            <div class="config-item">
+                <label>Esposizione</label>
+                <select id="inOrient">
                     <option value="1.0">Sud (100%)</option>
-                    <option value="0.8" selected>Ovest (80%)</option>
-                    <option value="0.75">Est (75%)</option>
-                    <option value="0.5">Nord (50%)</option>
+                    <option value="0.88" selected>Ovest / Est (88%)</option>
+                    <option value="0.65">Nord (65%)</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Tema UI:</label>
-                <select id="setting-theme" onchange="applyTheme()">
-                    <option value="slate">Pro Dark (Sky)</option>
-                    <option value="amber">Solar Amber</option>
-                    <option value="emerald">Eco Emerald</option>
-                </select>
-            </div>
-            <button class="modern-btn" onclick="saveAndReload()">Salva & Aggiorna</button>
-        </div>
-
-        <div class="card" style="flex-grow: 1;">
-            <div class="card-title"><span>📅 Outlook 7 Giorni</span><span style="font-size:0.65rem; color:var(--text-muted);">Tocca per dettagli</span></div>
-            <div id="forecast-list">
-                <div class="loading">Inizializzazione feed satellitare...</div>
+            <div class="config-item">
+                <label>Tariffa (€/kWh)</label>
+                <input type="number" id="inTariff" value="0.28" step="0.01" min="0.05" max="2">
             </div>
         </div>
 
-        <!-- MODALE GRAFICO VERTICALE -->
-        <div id="detail-modal">
-            <div class="modal-header">
-                <div>
-                    <div class="modal-title" id="modal-day-title">Analisi Oraria</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);" id="modal-day-weather">Soleggiato</div>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-sub">Produzione PV Attuale</div>
+                <div class="stat-val" id="outProd">2.53 kW</div>
+                <div class="stat-sub" id="outSky">Soleggiato (70%)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-sub">Surplus Gratuito</div>
+                <div class="stat-val green" id="outSurplus">2.03 kW</div>
+                <div class="stat-sub" id="outLoadSub">Consumo casa: 0.5 kW</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-sub">Risparmio Stimato Oggi</div>
+                <div class="stat-val blue" id="outEuro">3.54 €</div>
+                <div class="stat-sub" id="outDailyKwh">Resa oggi: ~12.6 kWh</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-sub">Bilancio Batteria</div>
+                <div class="stat-val" id="outBattStatus">+2.0 kW</div>
+                <div class="stat-sub" id="outBattDesc">In carica dal sole</div>
+            </div>
+        </div>
+
+        <!-- Sliders Interattivi -->
+        <div class="sliders-box">
+            <div class="slider-row">
+                <div class="slider-top">
+                    <span>☀️ Simula Irraggiamento Solare:</span>
+                    <strong id="txtSun" style="color: var(--accent);">70%</strong>
                 </div>
-                <button class="close-btn" onclick="closeModal()">✕</button>
+                <input type="range" id="slSun" min="0" max="100" value="70">
             </div>
-            
-            <div class="vertical-chart-wrapper">
-                <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-bottom: 2px;">Potenza Istantanea (Watt)</div>
-                <div class="vertical-chart-area" id="vertical-chart-area"></div>
+            <div class="slider-row">
+                <div class="slider-top">
+                    <span>🏠 Simula Carico Consumi Casa:</span>
+                    <strong id="txtLoad" style="color: var(--blue);">0.5 kW</strong>
+                </div>
+                <input type="range" id="slLoad" min="0.1" max="4.5" step="0.1" value="0.5">
             </div>
+        </div>
 
-            <button class="modern-btn" onclick="closeModal()">Chiudi Analisi</button>
+        <!-- ECCO LE PREVISIONI DI RENDIMENTO PV ORARIO! -->
+        <div class="pv-chart-container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 0.88rem;">📈 Previsione Rendimento PV Orario (Oggi)</strong>
+                <span style="font-size: 0.75rem; color: var(--text-muted);" id="chartOrientLabel">Curva Ovest</span>
+            </div>
+            <div class="pv-bars" id="pvHourlyBars"></div>
         </div>
     </div>
 
-    <script>
-        let apiData = null;
-        let lat = 45.62; // Default Zero Branco
-        let lon = 12.24;
+    <!-- 2. FUNZIONE PRO 1: GESTIONE CARICHI -->
+    <div class="card">
+        <div class="pro-overlay" id="lockOverlay1">
+            <h3>🔒 Pianificatore Carichi Smart</h3>
+            <p>Scopri in tempo reale quali elettrodomestici accendere gratis col surplus solare.</p>
+            <button class="btn-unlock" data-open-modal="true">Sblocca tutto • 0,99€/mese</button>
+        </div>
 
-        const themes = {
-            slate: { bgMain: '#090d16', bgCard: '#131b2e', bgInner: '#090d16', accent: '#38bdf8', border: '#1e293b', grad: 'linear-gradient(to top, #38bdf8, #34d399)' },
-            amber: { bgMain: '#140f0a', bgCard: '#211810', bgInner: '#140f0a', accent: '#fbbf24', border: '#332415', grad: 'linear-gradient(to top, #fbbf24, #f97316)' },
-            emerald: { bgMain: '#042f2e', bgCard: '#064e3b', bgInner: '#022c22', accent: '#34d399', border: '#065f46', grad: 'linear-gradient(to top, #34d399, #10b981)' }
-        };
+        <div class="card-header">
+            <div class="card-title">🔌 Gestione Intelligente Carichi <span class="badge badge-pro">PRO</span></div>
+        </div>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 10px;">
+            Surplus disponibile adesso: <strong id="proSurplusVal" style="color: var(--green);">2.03 kW</strong>
+        </p>
+        <div class="app-list" id="proAppList"></div>
+    </div>
 
-        window.onload = () => {
-            if(localStorage.getItem('pro_power')) {
-                document.getElementById('pv-power').value = localStorage.getItem('pro_power');
-                document.getElementById('pv-orient').value = localStorage.getItem('pro_orient');
-                document.getElementById('setting-theme').value = localStorage.getItem('pro_theme') || "slate";
-                lat = parseFloat(localStorage.getItem('pro_lat')) || 45.62;
-                lon = parseFloat(localStorage.getItem('pro_lon')) || 12.24;
-                document.getElementById('display-location').innerText = localStorage.getItem('pro_locname') || "Zero Branco";
-            }
-            applyTheme();
-            fetchWeatherData();
-        };
+    <!-- 3. FUNZIONE PRO 2: SIMULATORE BATTERIA & ROI -->
+    <div class="card">
+        <div class="pro-overlay" id="lockOverlay2">
+            <h3>🔒 Simulatore Accumulo & ROI</h3>
+            <p>Calcola quanto risparmi all'anno e in quanti mesi ammortizzi una batteria.</p>
+            <button class="btn-unlock" data-open-modal="true">Sblocca tutto • 0,99€/mese</button>
+        </div>
 
-        function toggleConfig() {
-            document.getElementById('config-panel').classList.toggle('open');
-        }
+        <div class="card-header">
+            <div class="card-title">🔋 Simulatore Batteria & ROI <span class="badge badge-pro">PRO</span></div>
+        </div>
+        <div class="roi-grid">
+            <div class="config-item">
+                <label>Batteria Extra (kWh)</label>
+                <input type="number" id="roiKwh" value="5" min="1" max="30">
+            </div>
+            <div class="config-item">
+                <label>Costo Totale (€)</label>
+                <input type="number" id="roiCost" value="2200" min="300" max="20000" step="100">
+            </div>
+            <div class="config-item">
+                <label>Cicli Pieni / Anno</label>
+                <input type="number" id="roiCycles" value="250" min="50" max="365">
+            </div>
+            <div class="config-item">
+                <label>Efficienza Batteria (%)</label>
+                <input type="number" id="roiEff" value="90" min="70" max="98">
+            </div>
+        </div>
+        <div class="roi-result" id="roiResultBox"></div>
+    </div>
 
-        function applyTheme() {
-            let tKey = document.getElementById('setting-theme').value;
-            let t = themes[tKey] || themes.slate;
-            let r = document.documentElement;
-            r.style.setProperty('--bg-main', t.bgMain);
-            r.style.setProperty('--bg-card', t.bgCard);
-            r.style.setProperty('--bg-inner', t.bgInner);
-            r.style.setProperty('--accent', t.accent);
-            r.style.setProperty('--border', t.border);
-            r.style.setProperty('--bar-gradient', t.grad);
-        }
+    <!-- 4. FUNZIONE PRO 3: PREVISIONI METEO 3 GIORNI & NOTIFICHE PUSH -->
+    <div class="card">
+        <div class="pro-overlay" id="lockOverlay3">
+            <h3>🔒 Previsioni PV 3 Giorni & Notifiche</h3>
+            <p>Previsioni meteo reali per la tua città con stima kWh futuri e avvisi sul telefono.</p>
+            <button class="btn-unlock" data-open-modal="true">Sblocca tutto • 0,99€/mese</button>
+        </div>
 
-        function saveAndReload() {
-            localStorage.setItem('pro_power', document.getElementById('pv-power').value);
-            localStorage.setItem('pro_orient', document.getElementById('pv-orient').value);
-            localStorage.setItem('pro_theme', document.getElementById('setting-theme').value);
-            toggleConfig();
-            applyTheme();
-            fetchWeatherData();
-        }
+        <div class="card-header">
+            <div class="card-title">⛈️ Previsioni PV 3 Giorni (<span id="cityLabel">Treviso</span>) <span class="badge badge-pro">PRO</span></div>
+        </div>
 
-        function requestGPS() {
-            if (navigator.geolocation) {
-                document.getElementById('status-text').innerText = "Ricerca coordinate GPS...";
-                navigator.geolocation.getCurrentPosition(pos => {
-                    lat = pos.coords.latitude;
-                    lon = pos.coords.longitude;
-                    document.getElementById('display-location').innerText = "Posizione GPS";
-                    localStorage.setItem('pro_lat', lat);
-                    localStorage.setItem('pro_lon', lon);
-                    localStorage.setItem('pro_locname', "Posizione GPS");
-                    toggleConfig();
-                    fetchWeatherData();
-                }, () => {
-                    alert("Accesso GPS negato o non disponibile.");
-                    document.getElementById('status-text').innerText = "Errore GPS";
-                });
-            } else {
-                alert("Geolocalizzazione non supportata.");
-            }
-        }
+        <div class="search-row">
+            <input type="text" id="citySearchInput" placeholder="Scrivi città (es. Milano, Roma, Napoli)...">
+            <button id="btnSearchCity">Cerca</button>
+            <button id="btnGpsCity" style="background:#334155; color:#fff;" title="Usa GPS">📍</button>
+        </div>
 
-        async function fetchWeatherData() {
-            const list = document.getElementById('forecast-list');
-            list.innerHTML = '<div class="loading">Sincronizzazione dati live in corso...</div>';
-            document.getElementById('status-text').innerText = "Connessione in corso...";
+        <div class="forecast-3d" id="forecast3dGrid"></div>
 
-            try {
-                // Chiamata API solida con timeout di sicurezza
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 5000);
+        <div class="advice-box" id="adviceBox">
+            Caricamento analisi intelligente...
+        </div>
 
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=shortwave_radiation_sum,weathercode,temperature_2m_max,temperature_2m_min&hourly=shortwave_radiation&timezone=Europe/Rome`;
-                
-                const res = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeout);
+        <button class="btn-full" id="btnEnableNotif">🔔 Attiva Notifiche Push sul Dispositivo</button>
+        <button class="btn-full sec" id="btnTestNotif">📲 Invia Notifica Push di Prova Ora</button>
+    </div>
 
-                if(!res.ok) throw new Error("Errore API");
-
-                apiData = await res.json();
-                document.getElementById('status-text').innerText = "Feed Satellitare Attivo";
-                renderForecast();
-
-            } catch(err) {
-                console.warn("Rete bloccata o errore API, attivazione motore di calcolo Pro offline:", err);
-                document.getElementById('status-text').innerText = "Modalità Pro Offline";
-                apiData = generateProData();
-                renderForecast();
-            }
-        }
-
-        function renderForecast() {
-            const list = document.getElementById('forecast-list');
-            list.innerHTML = '';
-
-            const kw = parseFloat(document.getElementById('pv-power').value) || 4.1;
-            const orient = parseFloat(document.getElementById('pv-orient').value) || 0.8;
-
-            const days = apiData.daily.time;
-            const rad = apiData.daily.shortwave_radiation_sum;
-            const codes = apiData.daily.weathercode;
-            const tMax = apiData.daily.temperature_2m_max;
-            const tMin = apiData.daily.temperature_2m_min;
-
-            for(let i=0; i<days.length; i++) {
-                let kwhM2 = rad[i] / 3.6;
-                let estKwh = (kwhM2 * kw * 0.78 * orient).toFixed(1); // 0.78 coefficiente professionale inverter
-
-                let dObj = new Date(days[i]);
-                let dStr = dObj.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
-                let wDesc = getWeatherDesc(codes[i]);
-
-                let item = document.createElement('div');
-                item.className = 'forecast-item';
-                item.onclick = () => openDetail(i, dStr, wDesc);
-                item.innerHTML = `
-                    <div class="day-info">
-                        <span class="day-name">${dStr}</span>
-                        <span class="day-weather">${wDesc}</span>
-                        <span class="day-temps">🌡️ ${Math.round(tMax[i])}° / ${Math.round(tMin[i])}°C</span>
-                    </div>
-                    <div class="day-prod-box">
-                        <span class="day-prod">${estKwh} kWh</span>
-                        <span class="arrow">📊</span>
-                    </div>
-                `;
-                list.appendChild(item);
-            }
-        }
-
-        function openDetail(index, dStr, wDesc) {
-            document.getElementById('modal-day-title').innerText = dStr;
-            document.getElementById('modal-day-weather').innerText = wDesc;
-
-            const area = document.getElementById('vertical-chart-area');
-            area.innerHTML = '';
-
-            const kw = parseFloat(document.getElementById('pv-power').value) || 4.1;
-            const orient = parseFloat(document.getElementById('pv-orient').value) || 0.8;
-            const hRad = apiData.hourly.shortwave_radiation;
-
-            let start = index * 24;
-            let maxW = 1;
-            let dData = [];
-
-            for(let h=7; h<=19; h++) {
-                let wM2 = hRad[start + h] || 0;
-                let watts = Math.max(0, wM2 * kw * 0.78 * orient);
-                if(watts > maxW) maxW = watts;
-                dData.push({ hour: h, watts: watts });
-            }
-
-            dData.forEach(d => {
-                let pct = (d.watts / maxW) * 100;
-                let col = document.createElement('div');
-                col.className = 'v-bar-col';
-                col.innerHTML = `
-                    <div style="font-size:0.4rem; color:#34d399; margin-bottom:2px;">${Math.round(d.watts)}W</div>
-                    <div class="v-bar" style="height: ${pct}%;"></div>
-                    <span class="v-bar-label">${d.hour}:00</span>
-                `;
-                area.appendChild(col);
-            });
-
-            document.getElementById('detail-modal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('detail-modal').classList.remove('active');
-        }
-
-        function getWeatherDesc(code) {
-            if (code === 0) return '☀️ Soleggiato';
-            if (code >= 1 && code <= 3) return '⛅ Nuvoloso';
-            if (code >= 50 && code <= 67) return '🌧️ Pioggia';
-            return '🌤️ Variabile';
-        }
-
-        function generateProData() {
-            let days = [], rad = [], codes = [], tMax = [], tMin = [], hRad = [];
-            let now = new Date();
-            for(let i=0; i<7; i++) {
-                let d = new Date(now);
-                d.setDate(now.getDate() + i);
-                days.push(d.toISOString().split('T')[0]);
-                rad.push(60 + Math.random() * 25);
-                codes.push(Math.random() > 0.3 ? 0 : 2);
-                tMax.push(21 + Math.random() * 4);
-                tMin.push(12 + Math.random() * 3);
-
-                for(let h=0; h<24; h++) {
-                    let p = (h >= 7 && h <= 19) ? Math.max(0, Math.sin((h - 7) / 12 * Math.PI) * 820) : 0;
-                    hRad.push(p);
-                }
-            }
-            return {
-                daily: { time: days, shortwave_radiation_sum: rad, weathercode: codes, temperature_2m_max: tMax, temperature_2m_min: tMin },
-                hourly: { time: [], shortwave_radiation: hRad }
-            };
-        }
-    </script>
-</body>
-</html>
+    <!-- MODALE ABBONAMENTO MENSILE 0,99€/MESE -->
+    <div class="modal-bg" id="subModal">
+        <div class="modal-box">
+            <h2>SolarPulse PRO</h2>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">Sblocca tutte le funzioni avanzate con un piccolo abbonamento mensile.</p>
+            <ul>
+                <li>✅ <strong>Gestione Carichi Smart:</strong> sai subito cosa accendere a costo zero.</li>
+                <li>✅ <strong>Simulatore Batteria & ROI:</strong> calcoli esatti sull'ammortamento.</li>
+                <li>✅ <strong>Previsioni Meteo & Resa kWh 3 Giorni:</strong> per qualsiasi città.</li>
+                <li>✅ <strong>Notifiche Push Automatiche:</strong> avvisi di surplus e ricarica F3.</l
