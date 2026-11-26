@@ -1,0 +1,398 @@
+:root {
+    --bg-color: #0b0f19;
+    --card-bg: #141c2e;
+    --card-border: #1e293b;
+    --text-color: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #f59e0b;
+    --accent-hover: #d97706;
+    --coffee: #ff813f;
+    --coffee-hover: #e66c2d;
+    --success: #38bdf8;
+    --success-green: #22c55e;
+    --danger-red: #f87171;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sun-icon {
+    font-size: 1.3rem;
+}
+
+.app-header h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge-free {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success-green);
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Pulsante Caffè */
+.coffee-btn {
+    background-color: var(--coffee);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.coffee-btn:hover {
+    background-color: var(--coffee-hover);
+}
+
+/* Card Meteo & GPS in alto */
+.weather-card {
+    background: linear-gradient(135deg, #141c2e 0%, #1e293b 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.weather-top-row {
+    background: #0f172a;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+}
+
+.weather-info-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weather-text {
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.temp-text {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.gps-full-btn {
+    width: 100%;
+    background: #0f172a;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.gps-full-btn:hover {
+    background: var(--accent);
+    color: #0b0f19;
+}
+
+/* Card Generali */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.card h2 {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.sub-badge {
+    font-size: 0.7rem;
+    color: var(--success-green);
+    background: rgba(34, 197, 94, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Griglia Input Superiori (4 colonne) */
+.inputs-grid-extended {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-group label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.input-group input, .input-group select {
+    background: #0f172a;
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+    padding: 6px 4px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    text-align: center;
+    width: 100%;
+}
+
+/* Griglia Metriche 2x2 */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.metric-box {
+    background: #0f172a;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.metric-box .label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.metric-box .value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.metric-box .sub-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+/* Sezione Slider */
+.sliders-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #0f172a;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+}
+
+.slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.slider-row label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+.slider-row label span {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+input[type=range] {
+    accent-color: var(--accent);
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Sezione Gestione Carichi */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.form-group select {
+    background: #0f172a;
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.primary-btn {
+    width: 100%;
+    background-color: var(--accent);
+    color: #0b0f19;
+    border: none;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.primary-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.result-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid var(--success-green);
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ROI Box */
+.roi-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--card-border);
+}
+
+.roi-metric {
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.roi-metric .label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.roi-metric .value {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: var(--success-green);
+}
+
+/* Grafico */
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chart-container {
+    height: 160px;
+    position: relative;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Footer Contatore */
+.app-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 8px 0;
+    margin-top: 4px;
+}
+
+#visitCount {
+    color: var(--accent);
+    font-weight: bold;
+}
