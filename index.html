@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>SolarPulse Pro</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>SolarPulse Pro</h1>
+        <span style="font-size: 0.75rem; color: var(--muted);">Zero Branco • 4.1 kW Ovest</span>
+      </div>
+      <span class="badge" id="weather-badge">Sincronizzazione...</span>
+    </header>
+
+    <!-- Riepilogo Produzione & Risparmio -->
+    <div class="card">
+      <div class="card-title">
+        <span>Stima Produzione & Resa</span>
+        <span id="current-date" style="font-size: 0.75rem; font-weight: 500;">--/--</span>
+      </div>
+      <div class="grid-2">
+        <div class="stat-box">
+          <div class="stat-label">Produzione Stimata</div>
+          <div class="stat-value solar-text"><span id="est-kwh">0.0</span> kWh</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Valore Risparmio</div>
+          <div class="stat-value green-text">€ <span id="est-euro">0.00</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Potenza Attuale</div>
+          <div class="stat-value accent-text"><span id="live-kw">0.00</span> kW</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Ricarica Batteria (6kWh)</div>
+          <div class="stat-value"><span id="bat-fill">0</span>%</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted);">
+          <span>Efficienza giornaliera impianto Ovest</span>
+          <span id="eff-percent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="eff-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dati Meteo & Irraggiamento -->
+    <div class="card">
+      <div class="card-title">
+        <span>Meteo & Irraggiamento Live</span>
+        <button onclick="fetchWeather()" style="background:none; border:none; color:var(--accent); font-size:0.78rem; cursor:pointer;">Aggiorna ↻</button>
+      </div>
+      <div class="weather-row">
+        <span style="color: var(--muted);">Condizioni cielo</span>
+        <strong id="w-desc">Caricamento...</strong>
+      </div>
+      <div class="weather-row">
+        <span style="color: var(--muted);">Temperatura esterna</span>
+        <strong id="w-temp">-- °C</strong>
+      </div>
+      <div class="weather-row">
+        <span style="color: var(--muted);">Radiazione solare attuale</span>
+        <strong id="w-rad">-- W/m²</strong>
+      </div>
+      <div class="weather-row">
+        <span style="color: var(--muted);">Copertura nuvolosa</span>
+        <strong id="w-cloud">-- %</strong>
+      </div>
+    </div>
+
+    <!-- Parametri Impianto & Tariffa -->
+    <div class="card">
+      <div class="card-title"><span>Parametri Calcolo</span></div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="kwp">Potenza Impianto (kWp)</label>
+          <input type="number" id="kwp" step="0.1" value="4.1" />
+        </div>
+        <div class="form-group">
+          <label for="tariff">Costo Energia (€/kWh)</label>
+          <input type="number" id="tariff" step="0.01" value="0.28" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="orientation">Esposizione</label>
+          <select id="orientation">
+            <option value="0.82" selected>Ovest (Fattore 0.82)</option>
+            <option value="1.00">Sud Pieno (Fattore 1.00)</option>
+            <option value="0.90">Sud-Ovest (Fattore 0.90)</option>
+            <option value="0.80">Est (Fattore 0.80)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="battery-cap">Capacità Batteria (kWh)</label>
+          <input type="number" id="battery-cap" step="0.5" value="6.0" />
+        </div>
+      </div>
+      <button class="btn" onclick="recalculate()">Ricalcola e Salva Impostazioni</button>
+      <p class="status-msg" id="save-status"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
