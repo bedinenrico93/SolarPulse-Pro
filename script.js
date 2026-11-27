@@ -44,7 +44,7 @@ const optimizeText = document.getElementById('optimizeText');
 const valMonthlySavings = document.getElementById('valMonthlySavings');
 const valPayback = document.getElementById('valPayback');
 
-// Inizializzazione Grafico Chart.js Orario
+// Inizializzazione Grafico Chart.js Orario (con asse Y che parte pulito da 0)
 const ctx = document.getElementById('hourlyChart').getContext('2d');
 const hourlyChart = new Chart(ctx, {
     type: 'line',
@@ -52,9 +52,9 @@ const hourlyChart = new Chart(ctx, {
         labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
         datasets: [{
             label: 'Produzione (kW)',
-            data: [0.8, 2.5, 4.1, 3.9, 2.1, 0.5],
+            data: [0, 0, 0, 0, 0, 0],
             borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
             fill: true,
             tension: 0.4,
             borderWidth: 2,
@@ -69,6 +69,7 @@ const hourlyChart = new Chart(ctx, {
         },
         scales: {
             y: { 
+                beginAtZero: true, // Fondamentale per non sballare il grafico sui negativi
                 grid: { color: '#1e293b' },
                 ticks: { color: '#94a3b8', font: { size: 10 } }
             },
@@ -143,7 +144,7 @@ btnGps.addEventListener('click', function() {
     );
 });
 
-// Funzione principale di aggiornamento (Simulatore + Grafico + ROI Dinamico)
+// Funzione principale di aggiornamento (Simulatore + Grafico a Campana + ROI Dinamico)
 function updateSimulation() {
     const powerKw = parseFloat(inputPower.value) || 4.1;
     const batteryCap = parseFloat(inputBatteryCapacity.value) || 6.0;
@@ -175,31 +176,31 @@ function updateSimulation() {
         descBatteryStatus.innerText = `In scarica (${batteryCap} kWh cap.)`;
     }
 
-    // Risparmio stimato giornaliero e mensile in euro (Basato su tariffa e potenza)
+    // Risparmio stimato giornaliero e mensile in euro
     const kwhToday = maxProd > 0 ? maxProd * 4.5 : 0; 
     const savingsEuro = kwhToday * tariff;
     valSavings.innerText = savingsEuro.toFixed(2) + ' €';
     descKwhToday.innerText = `Resa oggi: ~${kwhToday.toFixed(1)} kWh`;
 
-    // Calcolo ROI Dinamico (Mese e Anni Ammortamento basati sulla batteria inserita)
+    // Calcolo ROI Dinamico
     const monthlySavingsVal = savingsEuro * 30;
     valMonthlySavings.innerText = monthlySavingsVal.toFixed(2) + ' €';
     
-    // Stima costo batteria ipotetico (~650€ a kWh installato) diviso risparmio annuo
     const estimatedBatteryCost = batteryCap * 650;
     const annualSavingsVal = monthlySavingsVal * 12;
     const paybackYears = annualSavingsVal > 0 ? (estimatedBatteryCost / annualSavingsVal) : 5.0;
     valPayback.innerText = paybackYears.toFixed(1) + ' Anni';
 
-    // Aggiornamento dinamico del grafico orario
-    const factor = (powerKw / 4.1) * (solarPercent / 100);
+    // Curva di produzione oraria realistica a campana (proporzionata alla potenza e all'irraggiamento)
+    // Se l'irraggiamento è 0 (es. di notte), tutta la curva va a zero pulita.
+    const peak = powerKw * (solarPercent / 100);
     const newHourlyData = [
-        parseFloat((0.8 * factor).toFixed(2)),
-        parseFloat((2.5 * factor).toFixed(2)),
-        parseFloat((4.1 * factor).toFixed(2)),
-        parseFloat((3.9 * factor).toFixed(2)),
-        parseFloat((2.1 * factor).toFixed(2)),
-        parseFloat((0.5 * factor).toFixed(2))
+        parseFloat((peak * 0.2).toFixed(2)), // 08:00
+        parseFloat((peak * 0.6).toFixed(2)), // 10:00
+        parseFloat((peak * 1.0).toFixed(2)), // 12:00 (Picco)
+        parseFloat((peak * 0.9).toFixed(2)), // 14:00
+        parseFloat((peak * 0.5).toFixed(2)), // 16:00
+        parseFloat((peak * 0.15).toFixed(2)) // 18:00
     ];
 
     hourlyChart.data.datasets[0].data = newHourlyData;
@@ -241,4 +242,3 @@ inputTariff.addEventListener('input', updateSimulation);
 
 // Esegui calcolo iniziale al caricamento
 updateSimulation();
-                 
