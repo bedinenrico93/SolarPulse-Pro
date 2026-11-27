@@ -1,3 +1,82 @@
+// Dizionario delle traduzioni (Italiano / Inglese)
+const translations = {
+    it: {
+        proTag: "PRO (GRATUITO)",
+        coffeeBtn: "☕ Offrimi un caffè",
+        gpsBtn: "🛰️ Rilevamento Posizione e Meteo Reale",
+        pvSimTitle: "⚡ Produzione PV & Monitoraggio Live",
+        configPlant: "Configurazione Impianto",
+        panelsLabel: "Pannelli (kW)",
+        tariffLabel: "Tariffa (€/kWh)",
+        prodTitle: "Produzione PV Attuale",
+        savingsTitle: "Risparmio Stimato Oggi",
+        manageTitle: "⚙️ Gestione Intelligente Carichi & ROI",
+        manageDesc: "Verifica in tempo reale se puoi avviare gli elettrodomestici a costo zero.",
+        selectAppliance: "Seleziona Elettrodomestico:",
+        verifyBtn: "Verifica Disponibilità per Avvio Immediato",
+        monthlySavingsTitle: "Risparmio Stimato (Mese)",
+        chartTitle: "📈 Previsione Rendimento PV Orario (Oggi)",
+        visitsText: "Visite totali:",
+        nightText: "🌙 Notte / Sereno",
+        sunnyText: "☀️ Sereno / Soleggiato",
+        partCloudyText: "⛅ Parz. Nuvoloso",
+        rainText: "🌧️ Pioggia / Diluvio",
+        snowText: "🌨️ Neve",
+        stormText: "⛈️ Temporale",
+        cloudyText: "☁️ Nuvoloso / Coperto",
+        gpsNotSupported: "❌ GPS non supportato dal browser",
+        gpsLocating: "🛰️ Rilevamento coordinate GPS in corso...",
+        gpsConnecting: "🌐 Connessione al satellite meteo...",
+        gpsError: "⚠️ Errore nel download dati meteo",
+        gpsDenied: "⚠️ Permesso GPS negato o errore"
+    },
+    en: {
+        proTag: "PRO (FREE)",
+        coffeeBtn: "☕ Buy me a coffee",
+        gpsBtn: "🛰️ Detect GPS & Real Weather",
+        pvSimTitle: "⚡ PV Production & Live Monitoring",
+        configPlant: "Plant Configuration",
+        panelsLabel: "Panels (kW)",
+        tariffLabel: "Tariff (€/kWh)",
+        prodTitle: "Current PV Production",
+        savingsTitle: "Estimated Savings Today",
+        manageTitle: "⚙️ Smart Load Management",
+        manageDesc: "Check in real-time if you can run appliances at zero cost.",
+        selectAppliance: "Select Appliance:",
+        verifyBtn: "Check Availability for Immediate Start",
+        monthlySavingsTitle: "Estimated Savings (Month)",
+        chartTitle: "📈 Hourly PV Yield Forecast (Today)",
+        visitsText: "Total visits:",
+        nightText: "🌙 Night / Clear",
+        sunnyText: "☀️ Sunny / Clear",
+        partCloudyText: "⛅ Part. Cloudy",
+        rainText: "🌧️ Rain / Heavy Rain",
+        snowText: "🌨️ Snow",
+        stormText: "⛈️ Thunderstorm",
+        cloudyText: "☁️ Cloudy / Overcast",
+        gpsNotSupported: "❌ GPS not supported by browser",
+        gpsLocating: "🛰️ Detecting GPS coordinates...",
+        gpsConnecting: "🌐 Connecting to weather satellite...",
+        gpsError: "⚠️ Error downloading weather data",
+        gpsDenied: "⚠️ GPS permission denied or error"
+    }
+};
+
+let currentLang = 'it'; // Lingua predefinita
+let currentSolarPercent = 60; // Valore predefinito di irraggiamento
+
+function setLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.innerText = t[key];
+    });
+
+    updateSimulation();
+}
+
 // Gestione contatore visite locale sicuro
 try {
     let visits = localStorage.getItem('solarpulse_visits');
@@ -12,24 +91,13 @@ try {
     document.getElementById('visitCount').innerText = "Online";
 }
 
-// Riferimenti agli elementi UI
-const rangeSolar = document.getElementById('rangeSolar');
-const rangeLoad = document.getElementById('rangeLoad');
-const sliderSolarVal = document.getElementById('sliderSolarVal');
-const sliderLoadVal = document.getElementById('sliderLoadVal');
-
+// Riferimenti agli elementi UI (senza cursori, surplus e batteria)
 const valProduction = document.getElementById('valProduction');
-const valSurplus = document.getElementById('valSurplus');
 const valSavings = document.getElementById('valSavings');
-const valBattery = document.getElementById('valBattery');
-
 const descWeather = document.getElementById('descWeather');
-const descHouseLoad = document.getElementById('descHouseLoad');
 const descKwhToday = document.getElementById('descKwhToday');
-const descBatteryStatus = document.getElementById('descBatteryStatus');
 
 const inputPower = document.getElementById('inputPower');
-const inputBatteryCapacity = document.getElementById('inputBatteryCapacity');
 const inputTariff = document.getElementById('inputTariff');
 
 const btnGps = document.getElementById('btnGps');
@@ -42,7 +110,6 @@ const optimizeResult = document.getElementById('optimizeResult');
 const optimizeText = document.getElementById('optimizeText');
 
 const valMonthlySavings = document.getElementById('valMonthlySavings');
-const valPayback = document.getElementById('valPayback');
 
 // Inizializzazione Grafico Chart.js Orario
 const ctx = document.getElementById('hourlyChart').getContext('2d');
@@ -81,30 +148,32 @@ const hourlyChart = new Chart(ctx, {
     }
 });
 
-// Funzione di interpretazione codici meteo (di notte assegna una stima diurna del 60% per non azzerare i simulatori)
+// Funzione di interpretazione codici meteo bilingue
 function interpretWeatherCode(code, isDay) {
     const oraLocale = new Date().getHours();
+    const t = translations[currentLang];
     
     if (oraLocale < 6 || oraLocale >= 21 || isDay === 0) {
-        return { text: "🌙 Notte / Sereno", percent: 60 }; 
+        return { text: t.nightText, percent: 60 }; 
     }
     
-    if (code === 0) return { text: "☀️ Sereno / Soleggiato", percent: 90 };
-    if (code >= 1 && code <= 3) return { text: "⛅ Parz. Nuvoloso", percent: 60 };
-    if (code >= 51 && code <= 67) return { text: "🌧️ Pioggia / Diluvio", percent: 15 };
-    if (code >= 71 && code <= 77) return { text: "🌨️ Neve", percent: 10 };
-    if (code >= 95) return { text: "⛈️ Temporale", percent: 10 };
-    return { text: "☁️ Nuvoloso / Coperto", percent: 30 };
+    if (code === 0) return { text: t.sunnyText, percent: 90 };
+    if (code >= 1 && code <= 3) return { text: t.partCloudyText, percent: 60 };
+    if (code >= 51 && code <= 67) return { text: t.rainText, percent: 15 };
+    if (code >= 71 && code <= 77) return { text: t.snowText, percent: 10 };
+    if (code >= 95) return { text: t.stormText, percent: 10 };
+    return { text: t.cloudyText, percent: 30 };
 }
 
 // Integrazione GPS reale + API Meteo Open-Meteo in tempo reale
 btnGps.addEventListener('click', function() {
+    const t = translations[currentLang];
     if (!navigator.geolocation) {
-        weatherCondition.innerText = "❌ GPS non supportato dal browser";
+        weatherCondition.innerText = t.gpsNotSupported;
         return;
     }
 
-    weatherCondition.innerText = "🛰️ Rilevamento coordinate GPS in corso...";
+    weatherCondition.innerText = t.gpsLocating;
     weatherTemp.innerText = "--°C";
 
     navigator.geolocation.getCurrentPosition(
@@ -112,7 +181,7 @@ btnGps.addEventListener('click', function() {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
 
-            weatherCondition.innerText = "🌐 Connessione al satellite meteo...";
+            weatherCondition.innerText = t.gpsConnecting;
 
             try {
                 const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day`);
@@ -124,19 +193,19 @@ btnGps.addEventListener('click', function() {
                 
                 const info = interpretWeatherCode(weatherCode, isDay);
 
-                weatherCondition.innerText = `📍 Posizione Reale: ${info.text}`;
+                weatherCondition.innerText = `📍 ${currentLang === 'it' ? 'Posizione Reale' : 'Real Position'}: ${info.text}`;
                 weatherTemp.innerText = `${temp}°C`;
 
-                rangeSolar.value = info.percent;
+                currentSolarPercent = info.percent;
                 updateSimulation();
 
             } catch (error) {
-                weatherCondition.innerText = "⚠️ Errore nel download dati meteo";
+                weatherCondition.innerText = t.gpsError;
                 weatherTemp.innerText = "--°C";
             }
         },
         (error) => {
-            weatherCondition.innerText = "⚠️ Permesso GPS negato o errore";
+            weatherCondition.innerText = t.gpsDenied;
             weatherTemp.innerText = "--°C";
         },
         { timeout: 10000 }
@@ -146,16 +215,9 @@ btnGps.addEventListener('click', function() {
 // Funzione principale di aggiornamento
 function updateSimulation() {
     const powerKw = parseFloat(inputPower.value) || 4.1;
-    const batteryCap = parseFloat(inputBatteryCapacity.value) || 6.0;
     const tariff = parseFloat(inputTariff.value) || 0.28;
-    const solarPercent = parseInt(rangeSolar.value) || 60;
-    const houseLoad = parseFloat(rangeLoad.value);
+    const solarPercent = currentSolarPercent;
 
-    // Aggiorna etichette slider
-    sliderSolarVal.innerText = solarPercent;
-    sliderLoadVal.innerText = houseLoad.toFixed(1);
-
-    // Controllo orario solo per la produzione ISTANTA,NEA (a mezzanotte è 0 kW)
     const oraLocale = new Date().getHours();
     const isNotte = (oraLocale < 6 || oraLocale >= 21);
 
@@ -163,89 +225,73 @@ function updateSimulation() {
     const produzioneAttualeKw = isNotte ? 0 : maxProdPotenziale;
 
     valProduction.innerText = produzioneAttualeKw.toFixed(2) + ' kW';
-    descWeather.innerText = isNotte ? `Notte (Irragg. rif. ${solarPercent}%)` : `Irraggiamento ${solarPercent}%`;
-
-    // Surplus e Batteria
-    const surplus = produzioneAttualeKw - houseLoad;
-    valSurplus.innerText = (surplus > 0 ? surplus.toFixed(2) : '0.00') + ' kW';
-    valBattery.innerText = (surplus > 0 ? '+' : '') + surplus.toFixed(2) + ' kW';
     
-    if (surplus > 0) {
-        valBattery.style.color = '#38bdf8';
-        descHouseLoad.innerText = `Consumo casa: ${houseLoad} kW`;
-        descBatteryStatus.innerText = `In carica (${batteryCap} kWh cap.)`;
+    if (currentLang === 'it') {
+        descWeather.innerText = isNotte ? `Notte (Irragg. rif. ${solarPercent}%)` : `Irraggiamento ${solarPercent}%`;
     } else {
-        valBattery.style.color = '#f87171';
-        descHouseLoad.innerText = `Prelievo rete: ${Math.abs(surplus).toFixed(2)} kW`;
-        descBatteryStatus.innerText = `In scarica (${batteryCap} kWh cap.)`;
+        descWeather.innerText = isNotte ? `Night (Ref. irr. ${solarPercent}%)` : `Irradiance ${solarPercent}%`;
     }
 
-    // Risparmio stimato giornaliero e mensile basato sul potenziale dello slider (NON vanno a zero)
     const kwhToday = maxProdPotenziale * 4.5; 
     const savingsEuro = kwhToday * tariff;
     valSavings.innerText = savingsEuro.toFixed(2) + ' €';
-    descKwhToday.innerText = `Resa oggi: ~${kwhToday.toFixed(1)} kWh`;
+    descKwhToday.innerText = `${currentLang === 'it' ? 'Resa oggi' : 'Yield today'}: ~${kwhToday.toFixed(1)} kWh`;
 
-    // Calcolo ROI Dinamico
     const monthlySavingsVal = savingsEuro * 30;
     valMonthlySavings.innerText = monthlySavingsVal.toFixed(2) + ' €';
-    
-    const estimatedBatteryCost = batteryCap * 650;
-    const annualSavingsVal = monthlySavingsVal * 12;
-    const paybackYears = annualSavingsVal > 0 ? (estimatedBatteryCost / annualSavingsVal) : 5.0;
-    valPayback.innerText = paybackYears.toFixed(1) + ' Anni';
 
-    // Curva oraria del grafico basata sul potenziale solare (mostra la campana della giornata)
     const peak = maxProdPotenziale;
     const newHourlyData = [
-        parseFloat((peak * 0.2).toFixed(2)), // 08:00
-        parseFloat((peak * 0.6).toFixed(2)), // 10:00
-        parseFloat((peak * 1.0).toFixed(2)), // 12:00 (Picco)
-        parseFloat((peak * 0.9).toFixed(2)), // 14:00
-        parseFloat((peak * 0.5).toFixed(2)), // 16:00
-        parseFloat((peak * 0.15).toFixed(2)) // 18:00
+        parseFloat((peak * 0.2).toFixed(2)),
+        parseFloat((peak * 0.6).toFixed(2)),
+        parseFloat((peak * 1.0).toFixed(2)),
+        parseFloat((peak * 0.9).toFixed(2)),
+        parseFloat((peak * 0.5).toFixed(2)),
+        parseFloat((peak * 0.15).toFixed(2))
     ];
 
     hourlyChart.data.datasets[0].data = newHourlyData;
     hourlyChart.update();
 }
 
-// Logica Intelligente per i Carichi (Tasto Verifica Esubero)
+// Logica Intelligente per i Carichi (Verifica se la produzione copre l'elettrodomestico)
 btnOptimize.addEventListener('click', function() {
     const appliancePower = parseFloat(applianceSelect.value);
     const powerKw = parseFloat(inputPower.value) || 4.1;
-    const solarPercent = parseInt(rangeSolar.value) || 60;
-    const houseLoad = parseFloat(rangeLoad.value);
+    const solarPercent = currentSolarPercent;
     
     const oraLocale = new Date().getHours();
     const isNotte = (oraLocale < 6 || oraLocale >= 21);
     const produzioneAttualeKw = isNotte ? 0 : (powerKw * (solarPercent / 100));
-    const currentSurplus = produzioneAttualeKw - houseLoad;
 
     optimizeResult.classList.remove('hidden');
 
-    if (currentSurplus >= appliancePower) {
+    if (produzioneAttualeKw >= appliancePower) {
         optimizeResult.style.background = 'rgba(34, 197, 94, 0.1)';
         optimizeResult.style.borderColor = 'var(--success-green)';
-        optimizeText.innerHTML = `✅ <strong>Via libera!</strong> C'è abbastanza esubero solare (${currentSurplus.toFixed(2)} kW) per accendere l'elettrodomestico (${appliancePower} kW) <strong>a costo zero</strong> senza toccare la batteria o prelevare dalla rete.`;
-    } else if (currentSurplus > 0) {
-        const deficit = (appliancePower - currentSurplus).toFixed(2);
+        optimizeText.innerHTML = currentLang === 'it' ? 
+            `✅ <strong>Via libera!</strong> La produzione attuale (${produzioneAttualeKw.toFixed(2)} kW) è sufficiente per accendere l'elettrodomestico (${appliancePower} kW) <strong>a costo zero</strong>.` :
+            `✅ <strong>Go ahead!</strong> Current production (${produzioneAttualeKw.toFixed(2)} kW) is enough to run the appliance (${appliancePower} kW) <strong>at zero cost</strong>.`;
+    } else if (produzioneAttualeKw > 0) {
+        const deficit = (appliancePower - produzioneAttualeKw).toFixed(2);
         optimizeResult.style.background = 'rgba(245, 158, 11, 0.1)';
         optimizeResult.style.borderColor = 'var(--accent)';
-        optimizeText.innerHTML = `⚠️ <strong>Attenzione parziale:</strong> L'esubero attuale è di ${currentSurplus.toFixed(2)} kW. Accendendolo ora, preleverai ${deficit} kW dalla batteria o dalla rete. Conviene attendere le ore centrali (12:00 - 14:00).`;
+        optimizeText.innerHTML = currentLang === 'it' ?
+            `⚠️ <strong>Copertura parziale:</strong> La produzione attuale è di ${produzioneAttualeKw.toFixed(2)} kW. Mancano ${deficit} kW per coprire interamente l'elettrodomestico.` :
+            `⚠️ <strong>Partial coverage:</strong> Current production is ${produzioneAttualeKw.toFixed(2)} kW. You need ${deficit} kW more to run it entirely on solar.`;
     } else {
         optimizeResult.style.background = 'rgba(248, 113, 113, 0.1)';
         optimizeResult.style.borderColor = 'var(--danger-red)';
-        optimizeText.innerHTML = `❌ <strong>Sconsigliato:</strong> In questo momento non c'è esubero solare (la casa sta prelevando energia). L'accensione peserà interamente sulla bolletta.`;
+        optimizeText.innerHTML = currentLang === 'it' ?
+            `❌ <strong>Sconsigliato:</strong> In questo momento la produzione solare è a zero (è notte o assente). L'accensione peserà interamente sulla bolletta.` :
+            `❌ <strong>Not recommended:</strong> Solar production is currently zero (nighttime or no sun). Turning it on will impact your bill entirely.`;
     }
 });
 
-// Ascoltatori eventi
-rangeSolar.addEventListener('input', updateSimulation);
-rangeLoad.addEventListener('input', updateSimulation);
+// Ascoltatori eventi di configurazione
 inputPower.addEventListener('input', updateSimulation);
-inputBatteryCapacity.addEventListener('input', updateSimulation);
 inputTariff.addEventListener('input', updateSimulation);
 
 // Esegui calcolo iniziale al caricamento
 updateSimulation();
+                                        
