@@ -80,8 +80,11 @@ const hourlyChart = new Chart(ctx, {
     }
 });
 
-// Funzione di interpretazione codici meteo Open-Meteo WMO
-function interpretWeatherCode(code) {
+// Funzione di interpretazione codici meteo Open-Meteo WMO (con supporto notturno)
+function interpretWeatherCode(code, isDay) {
+    if (isDay === 0) {
+        return { text: "🌙 Notte / Sereno", percent: 0 };
+    }
     if (code === 0) return { text: "☀️ Sereno / Soleggiato", percent: 90 };
     if (code >= 1 && code <= 3) return { text: "⛅ Parz. Nuvoloso", percent: 60 };
     if (code >= 51 && code <= 67) return { text: "🌧️ Pioggia / Diluvio", percent: 15 };
@@ -108,12 +111,15 @@ btnGps.addEventListener('click', function() {
             weatherCondition.innerText = "🌐 Connessione al satellite meteo...";
 
             try {
-                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
+                // Aggiunto is_day per distinguere giorno e notte
+                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day`);
                 const data = await response.json();
 
                 const temp = data.current.temperature_2m;
                 const weatherCode = data.current.weather_code;
-                const info = interpretWeatherCode(weatherCode);
+                const isDay = data.current.is_day;
+                
+                const info = interpretWeatherCode(weatherCode, isDay);
 
                 weatherCondition.innerText = `📍 Posizione Reale: ${info.text}`;
                 weatherTemp.innerText = `${temp}°C`;
@@ -167,7 +173,8 @@ function updateSimulation() {
     }
 
     // Risparmio stimato giornaliero e mensile in euro (Basato su tariffa e potenza)
-    const kwhToday = maxProd * 4.5; 
+    // Se l'irraggiamento è 0 (es. di notte), laresa giornaliera stimata si azzera o calcola correttamente
+    const kwhToday = maxProd > 0 ? maxProd * 4.5 : 0; 
     const savingsEuro = kwhToday * tariff;
     valSavings.innerText = savingsEuro.toFixed(2) + ' €';
     descKwhToday.innerText = `Resa oggi: ~${kwhToday.toFixed(1)} kWh`;
@@ -232,3 +239,4 @@ inputTariff.addEventListener('input', updateSimulation);
 
 // Esegui calcolo iniziale al caricamento
 updateSimulation();
+            
