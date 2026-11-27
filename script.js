@@ -80,11 +80,15 @@ const hourlyChart = new Chart(ctx, {
     }
 });
 
-// Funzione di interpretazione codici meteo Open-Meteo WMO (con supporto notturno)
+// Funzione di interpretazione codici meteo con controllo blindato sull'orario locale
 function interpretWeatherCode(code, isDay) {
-    if (isDay === 0) {
+    const oraLocale = new Date().getHours();
+    
+    // Se è notte fonda localmente (dalle 21:00 alle 06:00) o l'API indica che è notte
+    if (oraLocale < 6 || oraLocale >= 21 || isDay === 0) {
         return { text: "🌙 Notte / Sereno", percent: 0 };
     }
+    
     if (code === 0) return { text: "☀️ Sereno / Soleggiato", percent: 90 };
     if (code >= 1 && code <= 3) return { text: "⛅ Parz. Nuvoloso", percent: 60 };
     if (code >= 51 && code <= 67) return { text: "🌧️ Pioggia / Diluvio", percent: 15 };
@@ -111,7 +115,6 @@ btnGps.addEventListener('click', function() {
             weatherCondition.innerText = "🌐 Connessione al satellite meteo...";
 
             try {
-                // Aggiunto is_day per distinguere giorno e notte
                 const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day`);
                 const data = await response.json();
 
@@ -173,7 +176,6 @@ function updateSimulation() {
     }
 
     // Risparmio stimato giornaliero e mensile in euro (Basato su tariffa e potenza)
-    // Se l'irraggiamento è 0 (es. di notte), laresa giornaliera stimata si azzera o calcola correttamente
     const kwhToday = maxProd > 0 ? maxProd * 4.5 : 0; 
     const savingsEuro = kwhToday * tariff;
     valSavings.innerText = savingsEuro.toFixed(2) + ' €';
@@ -183,7 +185,7 @@ function updateSimulation() {
     const monthlySavingsVal = savingsEuro * 30;
     valMonthlySavings.innerText = monthlySavingsVal.toFixed(2) + ' €';
     
-    // Stima costo batteria ipotetico (~600€ a kWh installato) diviso risparmio annuo
+    // Stima costo batteria ipotetico (~650€ a kWh installato) diviso risparmio annuo
     const estimatedBatteryCost = batteryCap * 650;
     const annualSavingsVal = monthlySavingsVal * 12;
     const paybackYears = annualSavingsVal > 0 ? (estimatedBatteryCost / annualSavingsVal) : 5.0;
@@ -239,4 +241,4 @@ inputTariff.addEventListener('input', updateSimulation);
 
 // Esegui calcolo iniziale al caricamento
 updateSimulation();
-            
+                 
