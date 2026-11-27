@@ -44,7 +44,7 @@ const optimizeText = document.getElementById('optimizeText');
 const valMonthlySavings = document.getElementById('valMonthlySavings');
 const valPayback = document.getElementById('valPayback');
 
-// Inizializzazione Grafico Chart.js Orario (con asse Y che parte pulito da 0)
+// Inizializzazione Grafico Chart.js Orario
 const ctx = document.getElementById('hourlyChart').getContext('2d');
 const hourlyChart = new Chart(ctx, {
     type: 'line',
@@ -69,7 +69,7 @@ const hourlyChart = new Chart(ctx, {
         },
         scales: {
             y: { 
-                beginAtZero: true, // Fondamentale per non sballare il grafico sui negativi
+                beginAtZero: true,
                 grid: { color: '#1e293b' },
                 ticks: { color: '#94a3b8', font: { size: 10 } }
             },
@@ -81,13 +81,13 @@ const hourlyChart = new Chart(ctx, {
     }
 });
 
-// Funzione di interpretazione codici meteo con controllo blindato sull'orario locale
+// Funzione di interpretazione codici meteo
 function interpretWeatherCode(code, isDay) {
     const oraLocale = new Date().getHours();
     
-    // Se è notte fonda localmente (dalle 21:00 alle 06:00) o l'API indica che è notte
+    // Se è notte fonda, il meteo testuale lo segnala, ma non azzeriamo il potenziale stimato del giorno
     if (oraLocale < 6 || oraLocale >= 21 || isDay === 0) {
-        return { text: "🌙 Notte / Sereno", percent: 0 };
+        return { text: "🌙 Notte / Sereno", percent: 60 }; // Percentuale di stima standard diurna per il simulatore
     }
     
     if (code === 0) return { text: "☀️ Sereno / Soleggiato", percent: 90 };
@@ -144,7 +144,7 @@ btnGps.addEventListener('click', function() {
     );
 });
 
-// Funzione principale di aggiornamento (Simulatore + Grafico a Campana + ROI Dinamico)
+// Funzione principale di aggiornamento
 function updateSimulation() {
     const powerKw = parseFloat(inputPower.value) || 4.1;
     const batteryCap = parseFloat(inputBatteryCapacity.value) || 6.0;
@@ -156,13 +156,18 @@ function updateSimulation() {
     sliderSolarVal.innerText = solarPercent;
     sliderLoadVal.innerText = houseLoad.toFixed(1);
 
-    // Calcoli produzione attuale
-    const maxProd = powerKw * (solarPercent / 100);
-    valProduction.innerText = maxProd.toFixed(2) + ' kW';
-    descWeather.innerText = `Irraggiamento ${solarPercent}%`;
+    // Controllo orario per la produzione ISTANTA，NEA (se è notte, i kW attuali sono 0)
+    const oraLocale = new Date().getHours();
+    const isNotte = (oraLocale < 6 || oraLocale >= 21);
 
-    // Surplus e Batteria
-    const surplus = maxProd - houseLoad;
+    const maxProdPotenziale = powerKw * (solarPercent / 100);
+    const produzioneAttualeKw = isNotte ? 0 : maxProdPotenziale;
+
+    valProduction.innerText = produzioneAttualeKw.toFixed(2) + ' kW';
+    descWeather.innerText = isNotte ? `Notte (Irragg. rif. ${solarPercent}%)` : `Irraggiamento ${solarPercent}%`;
+
+    // Surplus e Batteria calcolati sulla produzione attuale
+    const surplus = produzioneAttualeKw - houseLoad;
     valSurplus.innerText = (surplus > 0 ? surplus.toFixed(2) : '0.00') + ' kW';
     valBattery.innerText = (surplus > 0 ? '+' : '') + surplus.toFixed(2) + ' kW';
     
@@ -176,8 +181,8 @@ function updateSimulation() {
         descBatteryStatus.innerText = `In scarica (${batteryCap} kWh cap.)`;
     }
 
-    // Risparmio stimato giornaliero e mensile in euro
-    const kwhToday = maxProd > 0 ? maxProd * 4.5 : 0; 
+    // Risparmio stimato giornaliero e mensile (Basato sul potenziale solare impostato, non vanno a zero la notte)
+    const kwhToday = maxProdPotenziale * 4.5; 
     const savingsEuro = kwhToday * tariff;
     valSavings.innerText = savingsEuro.toFixed(2) + ' €';
     descKwhToday.innerText = `Resa oggi: ~${kwhToday.toFixed(1)} kWh`;
@@ -191,9 +196,8 @@ function updateSimulation() {
     const paybackYears = annualSavingsVal > 0 ? (estimatedBatteryCost / annualSavingsVal) : 5.0;
     valPayback.innerText = paybackYears.toFixed(1) + ' Anni';
 
-    // Curva di produzione oraria realistica a campana (proporzionata alla potenza e all'irraggiamento)
-    // Se l'irraggiamento è 0 (es. di notte), tutta la curva va a zero pulita.
-    const peak = powerKw * (solarPercent / 100);
+    // Curva oraria del grafico (mostra l'andamento della giornata stimata)
+    const peak = maxProdPotenziale;
     const newHourlyData = [
         parseFloat((peak * 0.2).toFixed(2)), // 08:00
         parseFloat((peak * 0.6).toFixed(2)), // 10:00
@@ -213,7 +217,11 @@ btnOptimize.addEventListener('click', function() {
     const powerKw = parseFloat(inputPower.value) || 4.1;
     const solarPercent = parseInt(rangeSolar.value);
     const houseLoad = parseFloat(rangeLoad.value);
-    const currentSurplus = (powerKw * (solarPercent / 100)) - houseLoad;
+    
+    const oraLocale = new Date().getHours();
+    const isNotte = (oraLocale < 6 || oraLocale >= 21);
+    const produzioneAttualeKw = isNotte ? 0 : (powerKw * (solarPercent / 100));
+    const currentSurplus = produzioneAttualeKw - houseLoad;
 
     optimizeResult.classList.remove('hidden');
 
