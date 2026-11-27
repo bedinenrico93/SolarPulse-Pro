@@ -1,7 +1,10 @@
-const CACHE_NAME = 'solarpulse-cache-v1';
+const CACHE_NAME = 'solarpulse-cache-v2';
 const urlsToCache = [
   './index.html',
-  './manifest.json'
+  './style.css',
+  './script.js',
+  './manifest.json',
+  'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
 // Installazione Service Worker
@@ -12,6 +15,7 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
 // Attivazione e pulizia vecchie cache
@@ -27,14 +31,18 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });
 
-// Intercettazione delle richieste di rete
+// Intercettazione delle richieste di rete (Cache-first con fallback di rete)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        return response || fetch(event.request);
+        // Se c'è in cache lo restituisce, altrimenti fa la fetch di rete
+        return response || fetch(event.request).catch(() => {
+          // Fallback opzionale se manca la rete e la risorsa non è in cache
+        });
       })
   );
 });
