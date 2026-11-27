@@ -1,8 +1,8 @@
-// Gestione contatore visite locale sicuro (funziona anche offline e non dipende da server esterni instabili)
+// Gestione contatore visite locale sicuro
 try {
     let visits = localStorage.getItem('solarpulse_visits');
     if (!visits) {
-        visits = 1420; // Partenza realistica
+        visits = 1420;
     } else {
         visits = parseInt(visits) + 1;
     }
@@ -81,13 +81,12 @@ const hourlyChart = new Chart(ctx, {
     }
 });
 
-// Funzione di interpretazione codici meteo
+// Funzione di interpretazione codici meteo (di notte assegna una stima diurna del 60% per non azzerare i simulatori)
 function interpretWeatherCode(code, isDay) {
     const oraLocale = new Date().getHours();
     
-    // Se è notte fonda, il meteo testuale lo segnala, ma non azzeriamo il potenziale stimato del giorno
     if (oraLocale < 6 || oraLocale >= 21 || isDay === 0) {
-        return { text: "🌙 Notte / Sereno", percent: 60 }; // Percentuale di stima standard diurna per il simulatore
+        return { text: "🌙 Notte / Sereno", percent: 60 }; 
     }
     
     if (code === 0) return { text: "☀️ Sereno / Soleggiato", percent: 90 };
@@ -149,14 +148,14 @@ function updateSimulation() {
     const powerKw = parseFloat(inputPower.value) || 4.1;
     const batteryCap = parseFloat(inputBatteryCapacity.value) || 6.0;
     const tariff = parseFloat(inputTariff.value) || 0.28;
-    const solarPercent = parseInt(rangeSolar.value);
+    const solarPercent = parseInt(rangeSolar.value) || 60;
     const houseLoad = parseFloat(rangeLoad.value);
 
     // Aggiorna etichette slider
     sliderSolarVal.innerText = solarPercent;
     sliderLoadVal.innerText = houseLoad.toFixed(1);
 
-    // Controllo orario per la produzione ISTANTA，NEA (se è notte, i kW attuali sono 0)
+    // Controllo orario solo per la produzione ISTANTA,NEA (a mezzanotte è 0 kW)
     const oraLocale = new Date().getHours();
     const isNotte = (oraLocale < 6 || oraLocale >= 21);
 
@@ -166,7 +165,7 @@ function updateSimulation() {
     valProduction.innerText = produzioneAttualeKw.toFixed(2) + ' kW';
     descWeather.innerText = isNotte ? `Notte (Irragg. rif. ${solarPercent}%)` : `Irraggiamento ${solarPercent}%`;
 
-    // Surplus e Batteria calcolati sulla produzione attuale
+    // Surplus e Batteria
     const surplus = produzioneAttualeKw - houseLoad;
     valSurplus.innerText = (surplus > 0 ? surplus.toFixed(2) : '0.00') + ' kW';
     valBattery.innerText = (surplus > 0 ? '+' : '') + surplus.toFixed(2) + ' kW';
@@ -181,7 +180,7 @@ function updateSimulation() {
         descBatteryStatus.innerText = `In scarica (${batteryCap} kWh cap.)`;
     }
 
-    // Risparmio stimato giornaliero e mensile (Basato sul potenziale solare impostato, non vanno a zero la notte)
+    // Risparmio stimato giornaliero e mensile basato sul potenziale dello slider (NON vanno a zero)
     const kwhToday = maxProdPotenziale * 4.5; 
     const savingsEuro = kwhToday * tariff;
     valSavings.innerText = savingsEuro.toFixed(2) + ' €';
@@ -196,7 +195,7 @@ function updateSimulation() {
     const paybackYears = annualSavingsVal > 0 ? (estimatedBatteryCost / annualSavingsVal) : 5.0;
     valPayback.innerText = paybackYears.toFixed(1) + ' Anni';
 
-    // Curva oraria del grafico (mostra l'andamento della giornata stimata)
+    // Curva oraria del grafico basata sul potenziale solare (mostra la campana della giornata)
     const peak = maxProdPotenziale;
     const newHourlyData = [
         parseFloat((peak * 0.2).toFixed(2)), // 08:00
@@ -215,7 +214,7 @@ function updateSimulation() {
 btnOptimize.addEventListener('click', function() {
     const appliancePower = parseFloat(applianceSelect.value);
     const powerKw = parseFloat(inputPower.value) || 4.1;
-    const solarPercent = parseInt(rangeSolar.value);
+    const solarPercent = parseInt(rangeSolar.value) || 60;
     const houseLoad = parseFloat(rangeLoad.value);
     
     const oraLocale = new Date().getHours();
